@@ -29,14 +29,25 @@ async def home(request: Request):
     return FileResponse("./static/index.html")
 
 @app.post("/palette/", response_class=HTMLResponse)
-async def get_color(request: Request, color_hex: str = Form(...), details_requested: Bool = Form(...)):
+async def get_color(request: Request, color_hex: str = Form(...), details_requested: Bool = Form(...), api_key: str = Form(...)):
     start_time = time.time()
 
     ### Validation
+    with open("api_keys.txt") as api_keys:
+        read_key = api_keys.readline().strip()
+        while read_key != "":
+            print("read:" + read_key)
+            print("api:" + api_key)
+            if read_key == api_key:
+                print("match")
+                break
+            read_key = api_keys.readline().strip()
+        else: # if while ends naturally i.e. without breaking i.e. key is incorrect
+            return JSONResponse(status_code=status.HTTP_401_UNAUTHORIZED, content=f"The api key is not valid")
     if not re.compile(r'#[0-9a-fA-F]{6}').fullmatch(color_hex):
         return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=f"The color {color_hex} is not a valid color. Please use hexadecimal representation, for example '#123456'")
     if not re.compile(r'(true)|(false)').fullmatch(details_requested):
-        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=f"The property 'details' has to be 'true' or 'false'")
+        return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content=f"The property 'details' has value {details_requested}. It has to be 'true' or 'false'")
     
     details_requested = details_requested == 'true'
 
@@ -66,8 +77,9 @@ async def get_color(request: Request, color_hex: str = Form(...), details_reques
 
     end_time = time.time()
     template_context["waiting_time"] = f'{end_time-start_time:.3}'
-
-    return templates.TemplateResponse(name="palette.html", request=request, context=template_context)
+    return JSONResponse(status_code=status.HTTP_200_OK, content=template_context)
+    # if you want to return HTML, use the code below
+    # return templates.TemplateResponse(name="palette.html", request=request, context=template_context)
 
 def process_color_details(raw_palette_details: list[dict]) -> list[dict] | JSONResponse:
     properties = ["hex", "rgb", "hsl", "hsv", "cmyk", "XYZ"]
