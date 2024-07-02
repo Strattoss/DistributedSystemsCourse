@@ -1,0 +1,59 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "sr.grpc.gen";
+option java_outer_classname = "SubscribingProto";
+
+package streaming;
+
+message OfferFilter
+{
+  repeated string categories = 1;
+  optional double minimalPrice = 2;
+  optional double maximalPrice = 3;
+  optional uint32 minimalAvailableAmount = 4;
+  optional uint32 maximalAvailableAmount = 5;
+}
+
+enum Category {
+  FOODS = 0;
+  CLOTHES = 1;
+  ELECTRONICS = 2;
+  APPLIANCES = 3;
+  MISCELLANEOUS = 4;
+}
+
+message Offer {
+  int32 offer_id = 1;
+  string title = 2;
+  Category category = 3;
+  string description = 4;
+  uint32 price_integer_part = 5;
+  uint32 price_decimal_part = 6;
+  uint32 available_amount = 7;
+}
+
+message CreateSubscriptionRequest {
+  uint32 user_id = 1;
+  optional OfferFilter offer_filter = 2;
+}
+message CreateSubscriptionResponse {
+  uint32 user_id = 1;
+  uint32 subscription_id = 2;
+}
+
+message SubscribeRequest {
+  uint32 user_id = 1;
+  uint32 subscription_id = 2;
+}
+message SubscribeResponse {
+  uint32 subscription_id = 1;
+  uint32 response_id = 2;
+  Offer offer = 3;
+}
+
+
+service OfferObservable {
+  rpc CreateSubscription(CreateSubscriptionRequest) returns (CreateSubscriptionResponse) {}
+  rpc Subscribe(SubscribeRequest) returns (stream SubscribeResponse) {}
+}

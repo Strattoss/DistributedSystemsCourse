@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "sr.grpc.gen";
+option java_outer_classname = "DataProto";
+
+package researching_optional;
+
+message Empty {
+
+}
+
+message Data {
+  int32 int32 = 1;
+  Data data = 2;
+}
+
+message DataRepeated {
+  repeated int32 ints32 = 1;
+  repeated Data data = 2;
+}
+
+message DataExplicitlyOptional {
+  optional int32 int32 = 1;
+  optional Data data = 2;
+}
+
+message DataOneOf {
+  oneof one_of {
+    int32 int32 = 1;
+    Data data = 2;
+    Empty empty  = 3;
+  }
+}
+
+service OptionalResearchServant {
+  rpc SendWithEmptyParameter(Empty) returns (Data) {};
+  rpc SendWithEmptyReturn(Data) returns (Empty) {};
+  rpc SendWithEmptyAll(Empty) returns (Empty) {};
+
+  rpc SendData(Data) returns (Data) {};
+  rpc SendDataRepeated(DataRepeated) returns (DataRepeated) {};
+  rpc SendDataExplicitlyOptional(DataExplicitlyOptional) returns (DataExplicitlyOptional) {};
+  rpc SendDataOneOf(DataOneOf) returns (DataOneOf) {};
+}
+
+
+//
+//
+//message MultiplicationArguments {
+//  repeated double args = 1;
+//  optional OperationType optype = 2;
+//}
+//
+//enum OperationType {
+//  SUM = 0;
+//  AVG = 1;
+//  MIN = 2;
+//  MAX = 3;
+//}

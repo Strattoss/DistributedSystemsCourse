@@ -1,0 +1,6 @@
+- Protobuf doesn't encode field names. Slice does.
+- For example, IceRPC supports one-way RPCs (fire and forget with no response), and Slice provides one-way operations that map to these one-way RPCs. On the other hand, a Protobuf RPC method always returns a response; as a result, you can't send a one-way RPC using Protobuf.
+- Protobuf3 offers only optional fields
+- Protobuf3 allows to explicitly specify a field as "optional". This way we can differentiate between "user has set an int32 to 0" and "the value has not been set"
+- Protobuf3 doesn't support "optional repeated"
+- Unset message field's value is language dependent. https://protobuf.dev/reference/
